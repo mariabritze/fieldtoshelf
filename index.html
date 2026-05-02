@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Field to Shelf — Coming Soon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark: #1a3a2a;
+      --green-mid: #2d6a4f;
+      --green-light: #40916c;
+      --green-pale: #d8f3dc;
+      --cream: #f8f4ec;
+      --cream-dark: #ede8dd;
+      --text: #1a2018;
+      --text-muted: #5a6b58;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--cream);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.4;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      position: relative;
+    }
+
+    /* Background field illustration — CSS only */
+    .bg-field {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 38vh;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-field svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 2.5rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeDown 0.8s ease both;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--green-dark);
+    }
+
+    .logo-dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: var(--green-light);
+      border-radius: 50%;
+      margin: 0 5px;
+      vertical-align: middle;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border: 1px solid var(--cream-dark);
+      padding: 6px 14px;
+      border-radius: 40px;
+      background: rgba(255,255,255,0.5);
+    }
+
+    /* Main content */
+    main {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem 2rem 8rem;
+      gap: 0;
+    }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green-light);
+      margin-bottom: 1.6rem;
+      animation: fadeUp 0.9s 0.2s ease both;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+      color: var(--green-dark);
+      margin-bottom: 0.3em;
+      animation: fadeUp 0.9s 0.3s ease both;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--green-light);
+    }
+
+    .headline-divider {
+      width: 48px;
+      height: 2px;
+      background: var(--green-light);
+      margin: 1.6rem auto;
+      animation: expand 0.9s 0.5s ease both;
+      transform-origin: left;
+    }
+
+    .tagline {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 480px;
+      animation: fadeUp 0.9s 0.4s ease both;
+      margin-bottom: 3rem;
+    }
+
+    .tagline strong {
+      color: var(--green-dark);
+      font-weight: 500;
+    }
+
+    /* Notify form */
+    .notify {
+      display: flex;
+      gap: 0;
+      border: 1.5px solid var(--cream-dark);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+      max-width: 400px;
+      width: 100%;
+      animation: fadeUp 0.9s 0.55s ease both;
+      box-shadow: 0 2px 24px rgba(26,58,42,0.07);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .notify:focus-within {
+      box-shadow: 0 4px 32px rgba(26,58,42,0.14);
+      border-color: var(--green-light);
+    }
+
+    .notify input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 14px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--text);
+      outline: none;
+    }
+
+    .notify input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+    .notify button {
+      border: none;
+      background: var(--green-dark);
+      color: var(--cream);
+      padding: 14px 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      border-radius: 0 48px 48px 0;
+      transition: background 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .notify button:hover { background: var(--green-mid); }
+
+    .notify-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      opacity: 0.65;
+      margin-top: 0.75rem;
+      animation: fadeUp 0.9s 0.65s ease both;
+    }
+
+    /* Three pillars */
+    .pillars {
+      display: flex;
+      gap: 0;
+      margin-top: 4rem;
+      animation: fadeUp 0.9s 0.7s ease both;
+    }
+
+    .pillar {
+      padding: 0 2.5rem;
+      border-right: 1px solid var(--cream-dark);
+      text-align: center;
+    }
+
+    .pillar:last-child { border-right: none; }
+
+    .pillar-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--green-light);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pillar-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 10;
+      padding: 1.5rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--cream-dark);
+      animation: fadeUp 1s 0.8s ease both;
+    }
+
+    .footer-copy {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .footer-links a:hover { opacity: 1; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes expand {
+      from { transform: scaleX(0); opacity: 0; }
+      to   { transform: scaleX(1); opacity: 1; }
+    }
+
+    /* Success state */
+    .success-msg {
+      display: none;
+      font-size: 0.85rem;
+      color: var(--green-mid);
+      font-weight: 400;
+      margin-top: 0.5rem;
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      header { padding: 1.5rem; }
+      .tag { display: none; }
+      footer { padding: 1.2rem 1.5rem; flex-direction: column; gap: 0.75rem; text-align: center; }
+      .pillars { gap: 0; }
+      .pillar { padding: 0 1.2rem; }
+    }
+    /* Founders */
+    .founders {
+      position: relative;
+      z-index: 10;
+      padding: 4rem 3rem 3rem;
+      background: var(--green-dark);
+      text-align: center;
+    }
+
+    .founders-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green-pale);
+      opacity: 0.6;
+      margin-bottom: 2.5rem;
+    }
+
+    .founders-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .founder-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.2rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: left;
+      text-decoration: none;
+      transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+    }
+
+    .founder-card:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(64,145,108,0.5);
+      transform: translateY(-2px);
+    }
+
+    .founder-initials {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .founder-portrait {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .founder-portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .founder-portrait .portrait-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      opacity: 0.35;
+    }
+
+    .founder-portrait .portrait-placeholder svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .founder-portrait .portrait-placeholder span {
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #f8f4ec;
+      font-weight: 500;
+    }
+
+    .founder-info { flex: 1; }
+
+    .founder-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f8f4ec;
+      margin-bottom: 2px;
+    }
+
+    .founder-role {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--green-pale);
+      opacity: 0.75;
+      margin-bottom: 0.65rem;
+      text-transform: uppercase;
+    }
+
+    .founder-bio {
+      font-size: 0.82rem;
+      color: rgba(248,244,236,0.55);
+      line-height: 1.65;
+      margin-bottom: 0.8rem;
+    }
+
+    .founder-langs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 0.8rem;
+    }
+
+    .founder-langs span {
+      font-size: 1.15rem;
+      line-height: 1;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+    }
+
+    .founder-link {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--green-light);
+      letter-spacing: 0.05em;
+    }
+
+    footer {
+      background: var(--green-dark);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    footer .footer-copy,
+    footer .footer-links a {
+      color: rgba(248,244,236,0.4);
+    }
+
+    footer .footer-links a:hover { opacity: 1; color: var(--green-pale); }
+
+    @media (max-width: 640px) {
+      .founders { padding: 3rem 1.5rem 2rem; }
+      .founders-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Background field illustration -->
+  <div class="bg-field">
+    <svg viewBox="0 0 1440 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Sky gradient fade -->
+      <defs>
+        <linearGradient id="skyFade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f8f4ec" stop-opacity="1"/>
+          <stop offset="40%" stop-color="#f8f4ec" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="fieldGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2d6a4f" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="#1a3a2a" stop-opacity="0.22"/>
+        </linearGradient>
+      </defs>
+      <!-- Rolling hills -->
+      <path d="M0 180 Q180 120 360 155 Q540 190 720 140 Q900 90 1080 145 Q1260 200 1440 150 L1440 280 L0 280 Z" fill="url(#fieldGrad)"/>
+      <path d="M0 210 Q200 165 400 185 Q600 205 800 170 Q1000 135 1200 175 Q1350 205 1440 185 L1440 280 L0 280 Z" fill="#2d6a4f" opacity="0.15"/>
+      <path d="M0 240 Q300 215 600 228 Q900 241 1200 220 Q1350 210 1440 225 L1440 280 L0 280 Z" fill="#1a3a2a" opacity="0.1"/>
+      <!-- Wheat stalks -->
+      <g opacity="0.25" stroke="#40916c" stroke-width="1.2" fill="none">
+        <line x1="100" y1="210" x2="98" y2="170"/><ellipse cx="98" cy="166" rx="4" ry="8" fill="#40916c" stroke="none"/>
+        <line x1="115" y1="215" x2="116" y2="172"/><ellipse cx="116" cy="168" rx="3" ry="7" fill="#40916c" stroke="none"/>
+        <line x1="130" y1="208" x2="129" y2="168"/><ellipse cx="129" cy="164" rx="4" ry="8" fill="#40916c" stroke="none"/>
+        <line x1="320" y1="200" x2="319" y2="158"/><ellipse cx="319" cy="154" rx="4" ry="8" fill="#40916c" stroke="none"/>
+        <line x1="335" y1="205" x2="337" y2="162"/><ellipse cx="337" cy="158" rx="3" ry="7" fill="#40916c" stroke="none"/>
+        <line x1="580" y1="192" x2="579" y2="150"/><ellipse cx="579" cy="146" rx="4" ry="8" fill="#40916c" stroke="none"/>
+        <line x1="595" y1="198" x2="596" y2="154"/><ellipse cx="596" cy="150" rx="3" ry="7" fill="#40916c" stroke="none"/>
+        <line x1="610" y1="190" x2="609" y2="150"/><ellipse cx="609" cy="146" rx="4" ry="8" fill="#40916c" stroke="none"/>
+        <line x1="850" y1="195" x2="849" y2="153"/><ellipse cx="849" cy="149" rx="4" ry="8" fill="#40916c" stroke="none"/>
+        <line x1="865" y1="200" x2="867" y2="157"/><ellipse cx="867" cy="153" rx="3" ry="7" fill="#40916c" stroke="none"/>
+        <line x1="1100" y1="205" x2="1099" y2="165"/><ellipse cx="1099" cy="161" rx="4" ry="8" fill="#40916c" stroke="none"/>
+        <line x1="1115" y1="210" x2="1116" y2="168"/><ellipse cx="1116" cy="164" rx="3" ry="7" fill="#40916c" stroke="none"/>
+        <line x1="1300" y1="195" x2="1299" y2="155"/><ellipse cx="1299" cy="151" rx="4" ry="8" fill="#40916c" stroke="none"/>
+        <line x1="1315" y1="200" x2="1317" y2="158"/><ellipse cx="1317" cy="154" rx="3" ry="7" fill="#40916c" stroke="none"/>
+      </g>
+      <!-- Sky fade overlay -->
+      <rect width="1440" height="280" fill="url(#skyFade)"/>
+    </svg>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <svg class="logo-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 26 Q8 18 16 14 Q24 10 28 6" stroke="#2d6a4f" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="28" cy="6" r="2.5" fill="#40916c"/>
+        <circle cx="16" cy="14" r="2" fill="#2d6a4f"/>
+        <path d="M4 26 L28 26" stroke="#1a3a2a" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-text">Field<span class="logo-dot"></span>to<span class="logo-dot"></span>Shelf</span>
+    </div>
+    <span class="tag">Coming soon</span>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <p class="eyebrow">Your guiding hand from the field to the shelf</p>
+    <h1>Where great<br>food finds<br><em>its shelf.</em></h1>
+    <div class="headline-divider"></div>
+    <p class="tagline">
+      We help <strong>food producers world-wide</strong> enter the German and Austrian market — through retail, importers, and distributors. Compliance, certification, brand, and buyer outreach, all in one team.
+    </p>
+
+    <div class="notify" id="notifyForm">
+      <input type="email" placeholder="Your email address" id="emailInput" aria-label="Email address">
+      <button onclick="handleSubmit()">Notify me</button>
+    </div>
+    <p class="notify-sub">We'll let you know when we launch. No spam, ever.</p>
+    <p class="success-msg" id="successMsg">✓ You're on the list. We'll be in touch soon.</p>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-num">01</div>
+        <div class="pillar-label">Compliance</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">02</div>
+        <div class="pillar-label">Brand</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">03</div>
+        <div class="pillar-label">Market entry</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Founders -->
+  <section class="founders">
+    <p class="founders-eyebrow">The team behind it</p>
+    <div class="founders-grid">
+
+      <a href="https://www.linkedin.com/in/riccardach/" target="_blank" class="founder-card">
+        <div class="founder-portrait">
+          <!-- Replace the placeholder below with: <img src="riccarda.jpg" alt="Riccarda Chiappani"> -->
+          <div class="portrait-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="4" stroke="#f8f4ec" stroke-width="1.5"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#f8f4ec" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Photo</span>
+          </div>
+        </div>
+        <div class="founder-info">
+          <p class="founder-name">Riccarda Chiappani</p>
+          <p class="founder-role">EU Retail Compliance & Sustainability</p>
+          <p class="founder-bio">Ex-EcoVadis · Bio & organic certifications · IFS, BRC, Rainforest Alliance · Supply chain auditing · Food safety regulations</p>
+          <p class="founder-langs"><span>🇬🇧</span><span>🇩🇪</span><span>🇪🇸</span></p>
+          <span class="founder-link">LinkedIn ↗</span>
+        </div>
+      </a>
+
+      <a href="https://www.linkedin.com/in/mariabritze/" target="_blank" class="founder-card">
+        <div class="founder-portrait">
+          <!-- Replace the placeholder below with: <img src="maria.jpg" alt="Maria Britze"> -->
+          <div class="portrait-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="4" stroke="#f8f4ec" stroke-width="1.5"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#f8f4ec" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Photo</span>
+          </div>
+        </div>
+        <div class="founder-info">
+          <p class="founder-name">Maria Britze</p>
+          <p class="founder-role">Digital Demand Architecture & Brand</p>
+          <p class="founder-bio">Messaging & positioning · Market localisation · LinkedIn executive branding · E-commerce & lifecycle marketing · B2B outreach strategy</p>
+          <p class="founder-langs"><span>🇬🇧</span><span>🇩🇪</span><span>🇳🇱</span><span>🇮🇹</span></p>
+          <span class="founder-link">LinkedIn ↗</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <span class="footer-copy">© 2025 Field to Shelf · fieldtoshelf.eu</span>
+    <div class="footer-links">
+      <a href="mailto:hello@fieldtoshelf.eu">hello@fieldtoshelf.eu</a>
+      <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  function handleSubmit() {
+    const input = document.getElementById('emailInput');
+    const form = document.getElementById('notifyForm');
+    const msg = document.getElementById('successMsg');
+    const sub = document.querySelector('.notify-sub');
+    if (input.value && input.value.includes('@')) {
+      form.style.display = 'none';
+      sub.style.display = 'none';
+      msg.style.display = 'block';
+    } else {
+      input.style.outline = '2px solid #D85A30';
+      input.focus();
+      setTimeout(() => { input.style.outline = 'none'; }, 1500);
+    }
+  }
+  document.getElementById('emailInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleSubmit();
+  });
+</script>
+</body>
+</html>
